@@ -41,12 +41,14 @@ function analysisObject(n) {
     }
   } else if (Utils.isObject(n)) {
     let keys = Object.keys(n);
-    let isNotSettingKeys = keys.some(item=>['type', 'default', 'unit', 'format', 'parse', 'dispose', 'computed'].indexOf(item) == -1);
+    let isNotSettingKeys = keys.some(item => ['type', 'default', 'unit', 'format', 'parse', 'dispose', 'computed'].indexOf(item) == -1);
     let type = getStaticType(n.type);
     // 已配置规则
     if (type && !isNotSettingKeys) {
       outData = {};
-      Object.assign(outData, n, {type});
+      Object.assign(outData, n, {
+        type
+      });
     } else {
       // 嵌套数据
       outData = {
@@ -74,7 +76,7 @@ function parseObject(data, model, param, parent) {
   if (param.isDispose && Utils.isFunction(model.computed)) {
     return model.computed.call(null, parent);
   }
-  
+
   if (param.isDispose && Utils.isFunction(model.dispose)) {
     return model.dispose.call(null, parent);
   }
@@ -93,83 +95,85 @@ function parseObject(data, model, param, parent) {
   }
   let outData = data;
   switch (model.type) {
-  case TYPE.OBJECT:
-    outData = {};
-    const columns = 0;
-    if (param.isParse) {
-      const keys = Utils.mergeArray(Object.keys(model.value), data ? Object.keys(data) : []);
-      for (const i of keys) {
-        if (model.value.hasOwnProperty(i)) {
-          data = data || {};
-          const _out = parseObject(data[i], model.value[i], param, data);
-          if (param.removeNull && (_out == undefined || _out == null || (Utils.isArray(_out) && _out.length == 0))) {
-            continue;
-          } else {
-            outData[i] = _out;
-          }
-        } else {
-          outData[i] = Utils.deepCopy(data[i]);
-        }
-      }
-    } else {
-      for (const i of Object.keys(data)) {
-        if (model.value.hasOwnProperty(i)) {
-          const d = parseObject(data[i], model.value[i], param, data);
-          if (d != undefined && d != null) {
-            if (param.removeEmptyArray && Utils.isArray(d) && d.length == 0) {
+    case TYPE.OBJECT:
+      outData = {};
+      const columns = 0;
+      if (param.isParse) {
+        const keys = Utils.mergeArray(Object.keys(model.value), data ? Object.keys(data) : []);
+        for (const i of keys) {
+          if (model.value.hasOwnProperty(i)) {
+            data = data || {};
+            const _out = parseObject(data[i], model.value[i], param, data);
+            if (param.removeNull && (_out == undefined || _out == null || (Utils.isArray(_out) && _out.length == 0))) {
               continue;
+            } else {
+              outData[i] = _out;
             }
-            outData[i] = d;
+          } else {
+            outData[i] = Utils.deepCopy(data[i]);
+          }
+        }
+      } else {
+        for (const i of Object.keys(data)) {
+          if (model.value.hasOwnProperty(i)) {
+            const d = parseObject(data[i], model.value[i], param, data);
+            if (d != undefined && d != null) {
+              if (param.removeEmptyArray && Utils.isArray(d) && d.length == 0) {
+                continue;
+              }
+              outData[i] = d;
+            }
           }
         }
       }
-    }
-    // 依旧为空对象
-    if (Object.keys(outData).length == 0 && param.removeEmptyObject && !Utils.isArray(parent)) outData = null;
-    break;
-  case TYPE.ARRAY:
-    outData = [];
-    for (const n of data) {
-      const r = parseObject(n, model.value, param, data);
-      if (!(param.removeNullFromArray && r == null)) { outData.push(r); }
-    }
-    break;
-  case TYPE.NUMBER:
-    if (Utils.isString(data) && data == '') {
-      outData = null;
-    } else {
-      outData = Number(data);
-      if (model.unit) {
-        if (param.isParse) {
-          outData = Utils.div(outData, model.unit);
-        } else {
-          outData = Utils.mul(outData, model.unit);
+      // 依旧为空对象
+      if (Object.keys(outData).length == 0 && param.removeEmptyObject && !Utils.isArray(parent)) outData = null;
+      break;
+    case TYPE.ARRAY:
+      outData = [];
+      for (const n of data) {
+        const r = parseObject(n, model.value, param, data);
+        if (!(param.removeNullFromArray && r == null)) {
+          outData.push(r);
         }
       }
-    }
-    break;
-  case TYPE.DATE:
-    if (Utils.isString(data) && data == '') {
-      outData = null;
-    } else if (!data) {
-      outData = null;
-    } else if (param.isParse) {
-      outData = manba(data).format(model.format || '');
-    } else {
-      outData = Model.disposeDateFormat(data, model.format);
-    }
-    break;
-  case TYPE.BOOLEAN:
-    if (data === true || data == 'true') {
-      outData = true;
-    } else if (data === false || data == 'false') {
-      outData = false;
-    } else {
-      outData = null;
-    }
-    break;
-  case TYPE.STRING:
-    outData = String(data);
+      break;
+    case TYPE.NUMBER:
+      if (Utils.isString(data) && data == '') {
+        outData = null;
+      } else {
+        outData = Number(data);
+        if (model.unit) {
+          if (param.isParse) {
+            outData = Utils.div(outData, model.unit);
+          } else {
+            outData = Utils.mul(outData, model.unit);
+          }
+        }
+      }
+      break;
+    case TYPE.DATE:
+      if (Utils.isString(data) && data == '') {
+        outData = null;
+      } else if (!data) {
+        outData = null;
+      } else if (param.isParse) {
+        outData = manba(data).format(model.format || '');
+      } else {
+        outData = Model.disposeDateFormat(data, model.format);
+      }
+      break;
+    case TYPE.BOOLEAN:
+      if (data === true || data == 'true') {
+        outData = true;
+      } else if (data === false || data == 'false') {
+        outData = false;
+      } else {
+        outData = null;
+      }
+      break;
+    case TYPE.STRING:
+      outData = String(data);
 
   }
   if (TYPE.isType(model.type) && param.isParse && Utils.isFunction(model.format) && outData) {
@@ -209,7 +213,7 @@ function _parse(data, model, param) {
   return outData;
 }
 
-const getStaticType = function(data) {
+const getStaticType = function (data) {
   if (data == null) {
     return false;
   }
@@ -219,7 +223,7 @@ const getStaticType = function(data) {
   return false;
 }
 
-const getType = function(data) {
+const getType = function (data) {
   if (TYPE.isType(data)) {
     return data;
   }
@@ -272,8 +276,9 @@ Model.disposeDateFormat = (str, format) => {
   return manba(str).toISOString();
 }
 Model.config = (params) => {
-  if(Utils.isFunction(params.disposeDateFormat)){
+  if (Utils.isFunction(params.disposeDateFormat)) {
     Model.disposeDateFormat = params.disposeDateFormat;
   }
 }
-module.exports =  Model;
+
+export default Model;
