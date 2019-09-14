@@ -1,10 +1,10 @@
 import Model from "src/js-model/model";
 
-let Basic = new Model({
+export default new Model({
   id: 0,
   source: {
     type: Date,
-    format: 'l' // use manba date format, "l": "YYYY-MM-DD",
+    format: "l" // use manba date format, "l": "YYYY-MM-DD",
   },
   description: "",
   tags: [0],
@@ -18,4 +18,3 @@ let Basic = new Model({
     unit: Model.Q // money transfor, a unit of 1000
   }
 });
-export default Basic;

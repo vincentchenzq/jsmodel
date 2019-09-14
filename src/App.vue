@@ -1,22 +1,31 @@
 <template>
-  <div id="app"></div>
+  <div id="app">
+    <input v-model="value1.a.b.d" />
+  </div>
 </template>
 
 <script>
-import Basic from 'src/class/Basic'
+// import Basic from 'src/class/Basic'
+import Detail from "src/class/Detail";
 
 export default {
-  name: 'app',
+  name: "app",
   data() {
-    return {}
+    return {
+      value1: Detail.parse({ a: { e: [{}] } }),
+      value2: Detail.dispose({})
+    };
   },
   mounted() {
-    let basicValue = Basic.parse({});
-    console.log(basicValue)
+    // let basicValue = Basic.parse({});
+    // console.log(basicValue)
+    // let basicValue2 = Basic.dispose({});
+    // console.log(basicValue2)
+    console.log(this.value1);
+    console.log(this.value2);
   },
-  components: {
-  }
-}
+  components: {}
+};
 </script>
 
 <style lang="less">

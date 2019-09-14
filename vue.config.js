@@ -1,11 +1,10 @@
-const path = require('path');
+const path = require("path");
 module.exports = {
-  baseUrl: process.env.NODE_ENV === 'production' ?
-    '//your_url' : '/',
+  publicPath: "",
 
-  outputDir: 'dist',
+  outputDir: "dist",
 
-  assetsDir: 'static',
+  assetsDir: "static",
 
   filenameHashing: true,
 
@@ -50,14 +49,14 @@ module.exports = {
   // corsUseCredentials: false,
   // webpack 配置，键值对象时会合并配置，为方法时会改写配置
   // https://cli.vuejs.org/guide/webpack.html#simple-configuration
-  configureWebpack: (config) => {},
+  configureWebpack: config => {},
 
   // webpack 链接 API，用于生成和修改 webapck 配置
   // https://github.com/mozilla-neutrino/webpack-chain
-  chainWebpack: (config) => {
+  chainWebpack: config => {
     config.resolve.alias
-      .set('src', path.join(__dirname, 'src'))
-      .set('@', path.join(__dirname, 'src'))
+      .set("src", path.join(__dirname, "src"))
+      .set("@", path.join(__dirname, "src"));
   },
 
   // 配置高于chainWebpack中关于 css loader 的配置
@@ -97,7 +96,7 @@ module.exports = {
     before: app => {}
   },
   // 构建时开启多进程处理 babel 编译
-  parallel: require('os').cpus().length > 1,
+  parallel: require("os").cpus().length > 1,
 
   // https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-pwa
   pwa: {},

@@ -1,6 +1,6 @@
-import Utils from './utils';
-import TYPE from './type';
-import manba from 'manba';
+import Utils from "./utils";
+import TYPE from "./type";
+import manba from "manba";
 
 const defaultParam = {
   //dispose的时候移除空数组
@@ -10,8 +10,8 @@ const defaultParam = {
   //移除null数据从数组中
   removeNullFromArray: false,
   //从子对象中移除空对象
-  removeEmptyObject: true,
-}
+  removeEmptyObject: true
+};
 
 function analysis(data) {
   const outData = {};
@@ -37,11 +37,22 @@ function analysisObject(n) {
   } else if (Utils.isArray(n)) {
     outData = {
       type: TYPE.ARRAY,
-      value: analysis(n),
-    }
+      value: analysis(n)
+    };
   } else if (Utils.isObject(n)) {
     let keys = Object.keys(n);
-    let isNotSettingKeys = keys.some(item => ['type', 'default', 'unit', 'format', 'parse', 'dispose', 'computed'].indexOf(item) == -1);
+    let isNotSettingKeys = keys.some(
+      item =>
+        [
+          "type",
+          "default",
+          "unit",
+          "format",
+          "parse",
+          "dispose",
+          "computed"
+        ].indexOf(item) == -1
+    );
     let type = getStaticType(n.type);
     // 已配置规则
     if (type && !isNotSettingKeys) {
@@ -53,13 +64,13 @@ function analysisObject(n) {
       // 嵌套数据
       outData = {
         type: TYPE.OBJECT,
-        value: analysis(n),
-      }
+        value: analysis(n)
+      };
     }
   } else {
     outData = {
-      type: getType(n),
-    }
+      type: getType(n)
+    };
   }
   return outData;
 }
@@ -99,12 +110,20 @@ function parseObject(data, model, param, parent) {
       outData = {};
       const columns = 0;
       if (param.isParse) {
-        const keys = Utils.mergeArray(Object.keys(model.value), data ? Object.keys(data) : []);
+        const keys = Utils.mergeArray(
+          Object.keys(model.value),
+          data ? Object.keys(data) : []
+        );
         for (const i of keys) {
           if (model.value.hasOwnProperty(i)) {
             data = data || {};
             const _out = parseObject(data[i], model.value[i], param, data);
-            if (param.removeNull && (_out == undefined || _out == null || (Utils.isArray(_out) && _out.length == 0))) {
+            if (
+              param.removeNull &&
+              (_out == undefined ||
+                _out == null ||
+                (Utils.isArray(_out) && _out.length == 0))
+            ) {
               continue;
             } else {
               outData[i] = _out;
@@ -127,7 +146,12 @@ function parseObject(data, model, param, parent) {
         }
       }
       // 依旧为空对象
-      if (Object.keys(outData).length == 0 && param.removeEmptyObject && !Utils.isArray(parent)) outData = null;
+      if (
+        Object.keys(outData).length == 0 &&
+        param.removeEmptyObject &&
+        !Utils.isArray(parent)
+      )
+        outData = null;
       break;
     case TYPE.ARRAY:
       outData = [];
@@ -139,7 +163,7 @@ function parseObject(data, model, param, parent) {
       }
       break;
     case TYPE.NUMBER:
-      if (Utils.isString(data) && data == '') {
+      if (Utils.isString(data) && data == "") {
         outData = null;
       } else {
         outData = Number(data);
@@ -153,20 +177,20 @@ function parseObject(data, model, param, parent) {
       }
       break;
     case TYPE.DATE:
-      if (Utils.isString(data) && data == '') {
+      if (Utils.isString(data) && data == "") {
         outData = null;
       } else if (!data) {
         outData = null;
       } else if (param.isParse) {
-        outData = manba(data).format(model.format || '');
+        outData = manba(data).format(model.format || "");
       } else {
         outData = Model.disposeDateFormat(data, model.format);
       }
       break;
     case TYPE.BOOLEAN:
-      if (data === true || data == 'true') {
+      if (data === true || data == "true") {
         outData = true;
-      } else if (data === false || data == 'false') {
+      } else if (data === false || data == "false") {
         outData = false;
       } else {
         outData = null;
@@ -174,13 +198,22 @@ function parseObject(data, model, param, parent) {
       break;
     case TYPE.STRING:
       outData = String(data);
-
   }
-  if (TYPE.isType(model.type) && param.isParse && Utils.isFunction(model.format) && outData) {
+  if (
+    TYPE.isType(model.type) &&
+    param.isParse &&
+    Utils.isFunction(model.format) &&
+    outData
+  ) {
     outData = model.format.call(null, outData);
   }
   // dispose 的时候 如果为"",则输出null
-  if (param.isDispose && param.setEmptyNull && Utils.isString(outData) && outData == '') {
+  if (
+    param.isDispose &&
+    param.setEmptyNull &&
+    Utils.isString(outData) &&
+    outData == ""
+  ) {
     outData = null;
   }
   return outData;
@@ -213,7 +246,7 @@ function _parse(data, model, param) {
   return outData;
 }
 
-const getStaticType = function (data) {
+const getStaticType = function(data) {
   if (data == null) {
     return false;
   }
@@ -221,9 +254,9 @@ const getStaticType = function (data) {
     return data;
   }
   return false;
-}
+};
 
-const getType = function (data) {
+const getType = function(data) {
   if (TYPE.isType(data)) {
     return data;
   }
@@ -235,7 +268,7 @@ const getType = function (data) {
     return TYPE.BOOLEAN;
   }
   return TYPE.STRING;
-}
+};
 
 class Model {
   constructor(_model) {
@@ -274,11 +307,11 @@ Model.Y = TYPE.Y;
 
 Model.disposeDateFormat = (str, format) => {
   return manba(str).toISOString();
-}
-Model.config = (params) => {
+};
+Model.config = params => {
   if (Utils.isFunction(params.disposeDateFormat)) {
     Model.disposeDateFormat = params.disposeDateFormat;
   }
-}
+};
 
 export default Model;
