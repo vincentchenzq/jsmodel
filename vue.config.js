@@ -1,4 +1,5 @@
 const path = require("path");
+const userInfo = require('./mockData/userInfo')
 module.exports = {
   publicPath: "",
 
@@ -93,7 +94,11 @@ module.exports = {
 
     proxy: null,
 
-    before: app => {}
+    before: app => {
+      app.get('/getUserInfo', function(req, res) {
+        res.json(userInfo);
+      });
+    }
   },
   // 构建时开启多进程处理 babel 编译
   parallel: require("os").cpus().length > 1,
