@@ -29,27 +29,6 @@ export default {
     console.log(this.value1);
     console.log(this.value2);
 
-    const cardData = {
-      arr: [
-        {
-          description: {
-            lastBuyTime: '2019-01-01',
-          },
-        },
-      ],
-    };
-
-    console.log(
-      getData(cardData, 'arr[0].description.lastBuyTime', 'arr[1].description'),
-    );
-    // ["2019-01-01", undefined]
-    function getData(data, ...args) {
-      const res = JSON.stringify(data);
-      return args.map(item =>
-        new Function(`try {return ${res}.${item} } catch(e) {}`)(),
-      );
-    }
-
     fetch({
       method: 'get',
       url: '/getUserInfo',
