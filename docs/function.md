@@ -16,3 +16,5 @@ console.log(
 ```
 
 > 实现一个 getData 使得下面的调用可以输出正确的结果
+
+[Back](./share.md#遇到的问题)
