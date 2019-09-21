@@ -6,11 +6,13 @@ const TYPE = {
   BOOLEAN: Boolean,
   OBJECT: Object,
   ARRAY: Array,
-  isType(date) {
-    return date === this.STRING ||
-      date === this.DATE ||
-      date === this.NUMBER ||
-      date === this.BOOLEAN;
+  isType(data) {
+    return (
+      data === this.STRING ||
+      data === this.DATE ||
+      data === this.NUMBER ||
+      data === this.BOOLEAN
+    );
   },
   S: 10,
   B: 100,
@@ -20,6 +22,6 @@ const TYPE = {
   BW: 1000000,
   QW: 10000000,
   Y: 100000000,
-}
+};
 Utils.deepFreeze(TYPE);
 export default TYPE;

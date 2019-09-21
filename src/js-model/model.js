@@ -1,16 +1,16 @@
-import Utils from "./utils";
-import TYPE from "./type";
-import manba from "manba";
+import Utils from './utils';
+import TYPE from './type';
+import manba from 'manba';
 
 const defaultParam = {
-  //dispose的时候移除空数组
-  removeEmptyArray: false,
   //parse的时候移除null数据
   removeNull: false,
+  //dispose的时候移除空数组
+  removeEmptyArray: false,
   //移除null数据从数组中
   removeNullFromArray: false,
   //从子对象中移除空对象
-  removeEmptyObject: true
+  removeEmptyObject: false,
 };
 
 function analysis(data) {
@@ -37,39 +37,39 @@ function analysisObject(n) {
   } else if (Utils.isArray(n)) {
     outData = {
       type: TYPE.ARRAY,
-      value: analysis(n)
+      value: analysis(n),
     };
   } else if (Utils.isObject(n)) {
     let keys = Object.keys(n);
     let isNotSettingKeys = keys.some(
       item =>
         [
-          "type",
-          "default",
-          "unit",
-          "format",
-          "parse",
-          "dispose",
-          "computed"
-        ].indexOf(item) == -1
+          'type',
+          'default',
+          'unit',
+          'format',
+          'parse',
+          'dispose',
+          'computed',
+        ].indexOf(item) == -1,
     );
     let type = getStaticType(n.type);
     // 已配置规则
     if (type && !isNotSettingKeys) {
       outData = {};
       Object.assign(outData, n, {
-        type
+        type,
       });
     } else {
       // 嵌套数据
       outData = {
         type: TYPE.OBJECT,
-        value: analysis(n)
+        value: analysis(n),
       };
     }
   } else {
     outData = {
-      type: getType(n)
+      type: getType(n),
     };
   }
   return outData;
@@ -101,7 +101,7 @@ function parseObject(data, model, param, parent) {
       if (!param.removeNull && model.default != undefined) {
         return model.default;
       }
-      return null;
+      return null; // TODO: 先返回null
     }
   }
   let outData = data;
@@ -112,7 +112,7 @@ function parseObject(data, model, param, parent) {
       if (param.isParse) {
         const keys = Utils.mergeArray(
           Object.keys(model.value),
-          data ? Object.keys(data) : []
+          data ? Object.keys(data) : [],
         );
         for (const i of keys) {
           if (model.value.hasOwnProperty(i)) {
@@ -163,7 +163,7 @@ function parseObject(data, model, param, parent) {
       }
       break;
     case TYPE.NUMBER:
-      if (Utils.isString(data) && data == "") {
+      if (Utils.isString(data) && data == '') {
         outData = null;
       } else {
         outData = Number(data);
@@ -177,20 +177,20 @@ function parseObject(data, model, param, parent) {
       }
       break;
     case TYPE.DATE:
-      if (Utils.isString(data) && data == "") {
+      if (Utils.isString(data) && data == '') {
         outData = null;
       } else if (!data) {
         outData = null;
       } else if (param.isParse) {
-        outData = manba(data).format(model.format || "");
+        outData = manba(data).format(model.format || '');
       } else {
         outData = Model.disposeDateFormat(data, model.format);
       }
       break;
     case TYPE.BOOLEAN:
-      if (data === true || data == "true") {
+      if (data === true || data == 'true') {
         outData = true;
-      } else if (data === false || data == "false") {
+      } else if (data === false || data == 'false') {
         outData = false;
       } else {
         outData = null;
@@ -212,7 +212,7 @@ function parseObject(data, model, param, parent) {
     param.isDispose &&
     param.setEmptyNull &&
     Utils.isString(outData) &&
-    outData == ""
+    outData == ''
   ) {
     outData = null;
   }
@@ -306,12 +306,7 @@ Model.QW = TYPE.QW;
 Model.Y = TYPE.Y;
 
 Model.disposeDateFormat = (str, format) => {
-  return manba(str).toISOString();
-};
-Model.config = params => {
-  if (Utils.isFunction(params.disposeDateFormat)) {
-    Model.disposeDateFormat = params.disposeDateFormat;
-  }
+  return new Date(str).getTime()
 };
 
 export default Model;
